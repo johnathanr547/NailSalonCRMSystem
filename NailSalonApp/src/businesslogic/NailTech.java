@@ -1,20 +1,21 @@
 package businesslogic;
 
 /**
- * A client of the business.
+ * A nail tech at the business.
  * 
  * @author Blue Ridge Consulting
  * @version 1.0
  */
-public class Client extends User {
+public class NailTech extends User {
 
-	public Client(String userId, String password, String firstName, String lastName, String email, String phoneNumber) {
+	public NailTech(String userId, String password, String firstName, String lastName, String email,
+			String phoneNumber) {
 		super(userId, password, firstName, lastName, email, phoneNumber);
 	}
 	
     @Override
     public String toString() {
-        return "Client{" +
+        return "User{" +
                 "userId='" + getUserId() + '\'' +
                 ", firstName='" + getFirstName() + '\'' +
                 ", lastName='" + getLastName() + '\'' +
@@ -22,5 +23,5 @@ public class Client extends User {
                 ", phoneNumber='" + getPhoneNumber() + '\'' +
                 '}';
     }
-	
+
 }
