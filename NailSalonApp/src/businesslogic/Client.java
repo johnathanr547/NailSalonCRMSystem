@@ -3,7 +3,7 @@ package businesslogic;
 /**
  * A client of the business.
  * 
- * @author John Ryder
+ * @author Blue Ridge Consulting
  * @version 1.0
  */
 public class Client extends User {

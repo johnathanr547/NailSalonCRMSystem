@@ -1,5 +1,11 @@
 package businesslogic;
 
+/**
+ * A class representing a user of the system.
+ * 
+ * @author Blue Ridge Consulting
+ * @version 1.0
+ */
 public class User {
 
     private String userId;

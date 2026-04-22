@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * A class representing a user's availability for appointments.
  * 
- * @author John Ryder
+ * @author Blue Ridge Consulting
  * @version 1.0
  * Used:
  * - https://www.w3schools.com/java/java_date.asp
