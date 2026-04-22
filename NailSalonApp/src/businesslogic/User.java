@@ -8,14 +8,14 @@ package businesslogic;
  */
 public class User {
 
-    private String userId;
+    private int userId;
     private String password;
     private String firstName;
     private String lastName;
     private String email;
     private String phoneNumber;
   
-    public User(String userId, String password, String firstName, String lastName,
+    public User(int userId, String password, String firstName, String lastName,
                 String email, String phoneNumber) {
         this.userId = userId;
         this.password = password;
@@ -25,11 +25,11 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
