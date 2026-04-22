@@ -14,13 +14,19 @@ public class Client extends User {
 	
     @Override
     public String toString() {
-        return "Client{" +
-                "userId='" + getUserId() + '\'' +
-                ", firstName='" + getFirstName() + '\'' +
-                ", lastName='" + getLastName() + '\'' +
-                ", email='" + getEmail() + '\'' +
-                ", phoneNumber='" + getPhoneNumber() + '\'' +
-                '}';
+        return String.format("Client,%s,%s,%s,%s,%s,%s", 
+        		getUserId(), getPassword(), getFirstName(),
+        		getLastName(), getEmail(), getPhoneNumber());
+    }
+    
+    public static Client parseClientString(String clientString)
+    {
+    	if (!clientString.contains("Client"))
+    	{
+    		return null;
+    	}
+    	String[] splitLine = clientString.split(",");
+    	return new Client(splitLine[0], splitLine[1], splitLine[2], splitLine[3], splitLine[4], splitLine[5]);
     }
 	
 }

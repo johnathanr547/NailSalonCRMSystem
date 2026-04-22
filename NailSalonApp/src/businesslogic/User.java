@@ -75,12 +75,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "userId='" + userId + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
+        return String.format("User,%s,%s,%s,%s,%s,%s", getUserId(), getPassword(), getFirstName(), getLastName(), getEmail(), getPhoneNumber());
     }
 }
