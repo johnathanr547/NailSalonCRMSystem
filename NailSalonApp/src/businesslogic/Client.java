@@ -8,7 +8,7 @@ package businesslogic;
  */
 public class Client extends User {
 
-	public Client(String userId, String password, String firstName, String lastName, String email, String phoneNumber) {
+	public Client(int userId, String password, String firstName, String lastName, String email, String phoneNumber) {
 		super(userId, password, firstName, lastName, email, phoneNumber);
 	}
 	

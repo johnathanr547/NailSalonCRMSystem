@@ -12,21 +12,21 @@ import java.time.LocalDateTime;
  */
 public class Availability {
 	
-	private String userID;
+	private int userID;
 	private LocalDateTime[] availabilityPerDay;
 	
-	public Availability(String userID)
+	public Availability(int userID)
 	{
 		this.userID = userID;
 		this.availabilityPerDay = new LocalDateTime[7];
 	}
 	
-	public String getUserID()
+	public int getUserID()
 	{
 		return this.userID;
 	}
 	
-	public void setUserID(String userID)
+	public void setUserID(int userID)
 	{
 		this.userID = userID;
 	}

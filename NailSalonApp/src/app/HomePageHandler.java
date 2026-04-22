@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+
+/**
+ * The server to make appointments, etc. Might be canned later.
+ */
 public class HomePageHandler implements HttpHandler {
 
     @Override

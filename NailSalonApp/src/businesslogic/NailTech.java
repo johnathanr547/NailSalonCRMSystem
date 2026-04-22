@@ -7,10 +7,18 @@ package businesslogic;
  * @version 1.0
  */
 public class NailTech extends User {
-
-	public NailTech(String userId, String password, String firstName, String lastName, String email,
-			String phoneNumber) {
+	private Availability techAvailability;
+	
+	
+	public NailTech(int userId, String password, String firstName, String lastName, String email,
+			String phoneNumber, Availability availability) {
 		super(userId, password, firstName, lastName, email, phoneNumber);
+		techAvailability = availability;
+		
+	}
+	
+	public Availability getAvailability() {
+		return techAvailability;
 	}
 	
     @Override
