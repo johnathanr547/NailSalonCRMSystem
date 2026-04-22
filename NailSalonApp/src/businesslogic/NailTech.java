@@ -7,23 +7,17 @@ package businesslogic;
  * @version 1.0
  */
 public class NailTech extends User {
-	private Availability techAvailability;
 	
 	
 	public NailTech(int userId, String password, String firstName, String lastName, String email,
-			String phoneNumber, Availability availability) {
+			String phoneNumber) {
 		super(userId, password, firstName, lastName, email, phoneNumber);
-		techAvailability = availability;
 		
-	}
-	
-	public Availability getAvailability() {
-		return techAvailability;
 	}
 	
     @Override
     public String toString() {
-        return String.format("NailTech,%s,%s,%s,%s,%s,%s", getUserId(), getPassword(), getFirstName(), getLastName(), getEmail(), getPhoneNumber());
+        return String.format("NailTech,%d,%s,%s,%s,%s,%s", getUserId(), getPassword(), getFirstName(), getLastName(), getEmail(), getPhoneNumber());
     }
     
     public static NailTech parseNailTechString(String techString)
@@ -33,7 +27,7 @@ public class NailTech extends User {
     		return null;
     	}
     	String[] splitLine = techString.split(",");
-    	return new NailTech(splitLine[0], splitLine[1], splitLine[2], splitLine[3], splitLine[4], splitLine[5]);
+    	return new NailTech(Integer.parseInt(splitLine[1]), splitLine[2], splitLine[3], splitLine[4], splitLine[5], splitLine[6]);
     }
 
 }
