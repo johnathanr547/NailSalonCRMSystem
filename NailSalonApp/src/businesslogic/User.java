@@ -1,4 +1,4 @@
-package app;
+package businesslogic;
 
 public class User {
 
@@ -8,12 +8,7 @@ public class User {
     private String lastName;
     private String email;
     private String phoneNumber;
-
-    
-    public User() {
-    }
-
-    
+  
     public User(String userId, String password, String firstName, String lastName,
                 String email, String phoneNumber) {
         this.userId = userId;
@@ -23,8 +18,6 @@ public class User {
         this.email = email;
         this.phoneNumber = phoneNumber;
     }
-
-    
 
     public String getUserId() {
         return userId;
@@ -73,8 +66,6 @@ public class User {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
-    
 
     @Override
     public String toString() {
