@@ -5,7 +5,29 @@ import java.util.Scanner;
 public class Display {
 	public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
- 
+        
+        System.out.println("===============================");
+        System.out.println("   WELCOME TO LUX NAIL SALON");
+        System.out.println("===============================");
+        System.out.println("1. I'm a Client");
+        System.out.println("2. I'm a Nail Tech");
+        System.out.println("0. Exit");
+        System.out.println("===========================");
+        System.out.print("Choose an option: ");
+
+        int role = scanner.nextInt();
+
+        switch (role) {
+            case 1 -> showClientMenu(scanner);
+            case 2 -> showNailTechDashboard();
+            case 0 -> System.out.println("Goodbye!");
+            default -> System.out.println("Invalid choice. Please enter 1, 2, or 0.");
+        }
+        
+        scanner.close();
+	}
+        
+    static void showClientMenu(Scanner scanner) {
         System.out.println("===========================");
         System.out.println("   NAIL TECH SCHEDULER");
         System.out.println("===========================");
@@ -23,10 +45,15 @@ public class Display {
             case 0 -> System.out.println("Goodbye!");
             default -> System.out.println("Invalid choice. Please enter 1, 2, or 0.");
         }
- 
-        scanner.close();
     }
  
+	static void showNailTechDashboard() {
+        System.out.println("\n===========================");
+        System.out.println("   NAIL TECH DASHBOARD");
+        System.out.println("===========================");
+        System.out.println("Coming soon...");
+    }
+	
     static void showCalendar() {
         System.out.println("\n--- AVAILABILITY CALENDAR ---");
         System.out.println("Mon Apr 21: 10:00 AM - BOOKED | 2:00 PM - FREE");

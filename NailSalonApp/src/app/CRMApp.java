@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import businesslogic.Availability;
 import businesslogic.User;
@@ -58,7 +59,24 @@ public class CRMApp {
 			System.out.println("Couldn't read nail tech data file!");
 		}
 		System.out.printf("Loaded %d clients and %d nail techs!\n", loadedClients.size(), loadedTechs.size());
-			
-			
+		loginFlow();
+	}
+	
+	public void loginFlow()
+	{
+		if (loadedClients.size() == 0 && loadedTechs.size() == 0)
+		{
+			System.out.println("No users found! Please create a user...");
+		}
+		Scanner in = new Scanner(System.in);
+		System.out.println("Please enter a username:");
+		String userName = in.next();
+		System.out.println(userName);
+		in.close();
+	}
+	
+	public void addUserFlow()
+	{
+		
 	}
 }
