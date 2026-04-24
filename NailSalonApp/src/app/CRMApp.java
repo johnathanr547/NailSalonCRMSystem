@@ -1,9 +1,11 @@
 package app;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -23,9 +25,15 @@ import businesslogic.NailTech;
  * - https://www.w3schools.com/java/java_files_read.asp
  * - https://www.w3schools.com/java/java_fileinputstream.asp
  * - https://www.w3schools.com/java/java_bufferedreader.asp
+ * - https://www.w3schools.com/java/java_bufferedwriter.asp
+ * - https://www.geeksforgeeks.org/java/filewriter-class-in-java/
+ * - https://stackoverflow.com/questions/50586627/java-lang-nullpointexception-using-filewriter
+ * - https://forums.oracle.com/ords/apexds/post/why-does-this-filewriter-create-a-null-pointer-help-5290
  */
 public class CRMApp {
 	
+	private String clientFileName;
+	private String techFileName;
 	private ArrayList<Client> loadedClients;
 	private ArrayList<NailTech> loadedTechs;
 	private Scanner in;
@@ -33,6 +41,8 @@ public class CRMApp {
 	
 	public CRMApp(String clientFileName, String techFileName)
 	{
+		this.clientFileName = clientFileName;
+		this.techFileName = techFileName;
 		this.in = new Scanner(System.in);
 		this.maxUserID = 0;
 		loadedClients = new ArrayList<>();
@@ -140,9 +150,38 @@ public class CRMApp {
 			}
 		}
 		System.out.printf("\nWelcome, %s %s.\n", foundUser.getFirstName(), foundUser.getLastName());
+		saveSystemState();
 	}
 	
-	
+	public void saveSystemState()
+	{
+		try {
+			File clientFile = new File(this.clientFileName);
+			BufferedWriter clientWriter = new BufferedWriter(new FileWriter(clientFile));
+			for (Client client : this.loadedClients)
+			{
+				clientWriter.write(client.toString() + "\n");
+			}
+			clientWriter.close();
+			System.out.printf("Wrote %d clients out to %s.\n", this.loadedClients.size(), this.clientFileName);
+		} catch (IOException | NullPointerException e) {
+			System.out.println("Unable to save client information! Invalid save location!");
+		}
+		try {
+			File techFile = new File(this.techFileName);
+			BufferedWriter techWriter = new BufferedWriter(new FileWriter(techFile));
+			for (NailTech tech : this.loadedTechs)
+			{
+				techWriter.write(tech.toString() + "\n");
+			}
+			techWriter.close();
+			System.out.printf("Wrote %d nail techs out to %s.\n", this.loadedTechs.size(), this.techFileName);
+		} catch (IOException | NullPointerException e) {
+			System.out.println("Unable to save nail tech information! Invalid save location!");
+		}
+		System.out.println("Goodbye!");
+		
+	}
 	
 	public void addUserFlow()
 	{
