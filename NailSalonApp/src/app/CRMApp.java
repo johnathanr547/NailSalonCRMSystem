@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -15,6 +16,7 @@ import businesslogic.Availability;
 import businesslogic.User;
 import businesslogic.Client;
 import businesslogic.NailTech;
+import businesslogic.Appointment;
 
 /**
  * Primary runner of nail salon CRM app.
@@ -39,6 +41,9 @@ public class CRMApp {
 	private Scanner in;
 	private int maxUserID;
 	private User currentUser;
+	private String apptFileName = "appointments.txt";
+	private ArrayList<Appointment> appointments = new ArrayList<>();
+
 	
 	public CRMApp(String clientFileName, String techFileName)
 	{
@@ -48,6 +53,8 @@ public class CRMApp {
 		this.maxUserID = 0;
 		loadedClients = new ArrayList<>();
 		loadedTechs = new ArrayList<>();
+		
+		// Read in client data
 		try {
 			BufferedReader clientReader = new BufferedReader(new FileReader(clientFileName));
 			String currentReaderLine = clientReader.readLine();
@@ -61,6 +68,8 @@ public class CRMApp {
 		} catch (IOException e) {
 			System.out.println("Couldn't read client data file!\n");
 		}
+		
+		// Read in user data
 		try {
 			BufferedReader techReader = new BufferedReader(new FileReader(techFileName));
 			String currentReaderLine = techReader.readLine();
@@ -74,6 +83,8 @@ public class CRMApp {
 			System.out.println("Couldn't read nail tech data file!\n");
 		}
 		System.out.printf("Loaded %d clients and %d nail techs!\n\n", loadedClients.size(), loadedTechs.size());
+		
+		// Update maxUserID by counting client ids
 		for (Client client : this.loadedClients)
 		{
 			if (client.getUserId() >= maxUserID)
@@ -81,6 +92,8 @@ public class CRMApp {
 				maxUserID = client.getUserId() + 1;
 			}
 		}
+		
+		// Update maxUserID by counting user ids
 		for (NailTech tech : this.loadedTechs)
 		{
 			if (tech.getUserId() >= maxUserID)
@@ -88,6 +101,27 @@ public class CRMApp {
 				maxUserID = tech.getUserId() + 1;
 			}
 		}
+		
+		// Load appointments
+		try {
+		    BufferedReader apptReader = new BufferedReader(new FileReader(apptFileName));
+		    String line = apptReader.readLine();
+		    while (line != null) {
+		        String[] parts = line.split(",");
+		        if (parts.length == 4) {
+		            int clientID = Integer.parseInt(parts[0]);
+		            int techID = Integer.parseInt(parts[1]);
+		            LocalDateTime dt = LocalDateTime.parse(parts[2]);
+		            String name = parts[3];
+		            appointments.add(new Appointment(techID, clientID, dt, name));
+		        }
+		        line = apptReader.readLine();
+		    }
+		    apptReader.close();
+		} catch (IOException e) {
+		    System.out.println("No existing appointments file found. Starting fresh.");
+		}
+
 		loginFlow();
 		in.close();
 	}
@@ -167,13 +201,65 @@ public class CRMApp {
 	{
 		System.out.println("What would you like to do?\n");
 		System.out.println("Options are:\n"
-				+ "1) Book/Manage Appointments\n"
+				+ "1) Book Appointments\n"
+				+ "2) Manage Appointments\n"
+				+ "3) View Upcoming Appointments\n"
+				+ "4) Update User Info\n"
+				+ "5) Quit\n");
+		Integer selection = null;
+		while (selection == null || selection < 1 || selection > 5)
+		{
+			System.out.println("Please enter your selection...");
+			try
+			{
+				selection = Integer.parseInt(this.in.next());
+			} catch (NumberFormatException e)
+			{
+				
+			}
+		}
+
+		switch(selection) {
+		case(1):
+			bookAppointmentsClient();
+			clientsideMenu();
+			break;
+		
+		case(2):
+			manageAppointmentsClient();
+			clientsideMenu();
+			break;
+		
+		case(3):
+			viewAppointmentsByMonth();
+			clientsideMenu();
+			break;
+		
+		case(4):
+			updateUserInfo();
+			clientsideMenu();
+			break;
+		
+		case(5):
+			saveSystemState();
+			return;
+		
+		default:
+			saveSystemState();
+		}
+			
+	}
+	
+	public void techsideMenu()
+	{
+		System.out.println("What would you like to do?\n");
+		System.out.println("Options are:\n"
+				+ "1) Manage Appointments\n"
 				+ "2) View Upcoming Appointments\n"
 				+ "3) Update User Info\n"
 				+ "4) Quit\n");
 		Integer selection = null;
-		while (selection == null || (!selection.equals(1) && !selection.equals(2) 
-				&& !selection.equals(3) && !selection.equals(4)))
+		while (selection == null || selection < 1 || selection > 4)
 		{
 			System.out.println("Please enter your selection...");
 			try
@@ -186,33 +272,90 @@ public class CRMApp {
 		}
 		switch(selection) {
 		case(1):
-			bookManageAppointmentsClient();
-			clientsideMenu();
+			manageAppointmentsTech();
+			techsideMenu();
 			break;
 		
 		case(2):
-			viewUpcomingAppointments();
-			clientsideMenu();
+			viewAppointmentsByMonth();
+			techsideMenu();
 			break;
 		
 		case(3):
 			updateUserInfo();
-			clientsideMenu();
+			techsideMenu();
 			break;
 		
 		default:
 			saveSystemState();
 		}
-			
 	}
 	
-	public void techsideMenu()
+	public void bookAppointmentsClient() {
+	    System.out.println("\nBook Appointment");
+	    System.out.println("Enter q to quit.");
+	    System.out.println("Enter month number (1–12):");
+
+	    String sel = in.next();
+	    if (sel.equalsIgnoreCase("q")) return; // exits program if q is entered
+
+	    int month;
+	    
+	    // check user input
+	    try {
+	        month = Integer.parseInt(sel);
+	        if (month < 1 || month > 12) {
+	            System.out.println("Invalid month.");
+	            return;
+	        }
+	    } catch (NumberFormatException e) {
+	        System.out.println("Invalid input.");
+	        return;
+	    }
+
+	    System.out.println("Enter day of month:");
+	    int day = in.nextInt();
+
+	    System.out.println("Enter start time (HHMM, i.e. 1245):");
+	    int time = in.nextInt();
+
+	    LocalDateTime dt;
+	    // transform user input into a datetime object
+	    try {
+	        dt = LocalDateTime.of(2026, month, day, time / 100, time % 100);
+	    } catch (Exception e) {
+	        System.out.println("Invalid date/time.");
+	        return;
+	    }
+
+	    // randomly assign a technician. Can (should) be changed later)
+	    NailTech assigned = loadedTechs.get((int)(Math.random() * loadedTechs.size()));
+	    if (assigned == null) {
+	        System.out.println("No nail technicians available.");
+	        return;
+	    }
+
+	    Appointment appt = new Appointment(
+	        assigned.getUserId(),
+	        currentUser.getUserId(),
+	        dt,
+	        "Nail Service with " + currentUser.getFirstName() + " " + currentUser.getLastName()
+	    );
+
+	    appointments.add(appt);
+
+	    System.out.printf(
+	        "Appointment booked on %s with tech %s %s.\n\n",
+	        dt.toString(),
+	        assigned.getFirstName(),
+	        assigned.getLastName()
+	    );
+	}
+
+	
+	public void manageAppointmentsClient()
 	{
 		
-	}
-	
-	public void bookManageAppointmentsClient()
-	{
 		
 	}
 	
@@ -221,10 +364,82 @@ public class CRMApp {
 		
 	}
 	
-	public void viewUpcomingAppointments()
-	{
-		
+	public void viewAppointmentsByMonth() {
+	    while (true) {
+	        System.out.println("\nView Appointments by Month");
+	        System.out.println("Enter q to quit.");
+	        System.out.println("Enter month number (1–12):");
+
+	        String sel = in.next();
+	        if (sel.equalsIgnoreCase("q")) return;
+
+	        int month;
+	        try {
+	            month = Integer.parseInt(sel);
+	            if (month < 1 || month > 12) {
+	                System.out.println("Invalid month.");
+	                continue;
+	            }
+	        } catch (NumberFormatException e) {
+	            System.out.println("Invalid input.");
+	            continue;
+	        }
+
+	        ArrayList<Appointment> monthAppts = getAppointmentsForMonth(month);
+	        System.out.printf("\nAppointments for %s:\n", java.time.Month.of(month));
+
+	        // Count per day
+	        int[] counts = new int[32];
+	        for (Appointment a : monthAppts) {
+	            int d = a.getApptDate().getDayOfMonth();
+	            counts[d]++;
+	        }
+
+	        for (int d = 1; d <= 31; d++) {
+	            if (counts[d] > 0) {
+	                System.out.printf("Day %d: %d appointments\n", d, counts[d]);
+	            }
+	        }
+
+	        while (true) {
+	            System.out.println("\nEnter a day to view details, b to go back:");
+	            String dsel = in.next();
+
+	            if (dsel.equalsIgnoreCase("b")) break;
+
+	            int day;
+	            try {
+	                day = Integer.parseInt(dsel);
+	            } catch (NumberFormatException e) {
+	                System.out.println("Invalid day.");
+	                continue;
+	            }
+
+	            ArrayList<Appointment> dayAppts = getAppointmentsForDay(month, day);
+	            if (dayAppts.isEmpty()) {
+	                System.out.println("No appointments on that day.");
+	                continue;
+	            }
+
+	            System.out.printf("\n=== Appointments on %s %d ===\n",
+	                java.time.Month.of(month), day);
+
+	            for (Appointment a : dayAppts) {
+	                Client c = getClientById(a.getClientID());
+	                NailTech t = getTechById(a.getNailTechID());
+
+	                System.out.printf(
+	                    "Client: %s %s | Tech: %s %s | Time: %02d:%02d | Status: Scheduled\n",
+	                    c.getFirstName(), c.getLastName(),
+	                    t.getFirstName(), t.getLastName(),
+	                    a.getApptDate().getHour(),
+	                    a.getApptDate().getMinute()
+	                );
+	            }
+	        }
+	    }
 	}
+
 	
 	public void updateUserInfo()
 	{
@@ -299,6 +514,7 @@ public class CRMApp {
 	
 	public void saveSystemState()
 	{
+		// Write client information
 		try {
 			File clientFile = new File(this.clientFileName);
 			BufferedWriter clientWriter = new BufferedWriter(new FileWriter(clientFile));
@@ -311,6 +527,8 @@ public class CRMApp {
 		} catch (IOException | NullPointerException e) {
 			System.out.println("\nUnable to save client information! Invalid save location!");
 		}
+		
+		// Write nail tech information
 		try {
 			File techFile = new File(this.techFileName);
 			BufferedWriter techWriter = new BufferedWriter(new FileWriter(techFile));
@@ -323,6 +541,25 @@ public class CRMApp {
 		} catch (IOException | NullPointerException e) {
 			System.out.println("Unable to save nail tech information! Invalid save location!");
 		}
+		
+		// Save appointments
+		try {
+		    File apptFile = new File(this.apptFileName);
+		    BufferedWriter apptWriter = new BufferedWriter(new FileWriter(apptFile));
+		    for (Appointment a : this.appointments) {
+		        apptWriter.write(
+		            a.getClientID()            + "," +
+		            a.getNailTechID()          + "," +
+		            a.getApptDate().toString() + "," +
+		            a.getApptName()            + "\n"
+		        );
+		    }
+		    apptWriter.close();
+		    System.out.printf("Wrote %d appointments to %s.\n", this.appointments.size(), this.apptFileName);
+		} catch (IOException | NullPointerException e) {
+		    System.out.println("Unable to save appointment information! Invalid save location!");
+		}
+
 		System.out.println("Goodbye!");
 		
 	}
@@ -370,4 +607,53 @@ public class CRMApp {
 				firstName, lastName, email, phoneNum));
 		System.out.printf("Your user ID is %d!\nRemember it, because you'll need it and your password to log in!\n\n", maxUserID - 1);
 	}
+	
+	
+	// ------------------------------------------------------------
+	// Appointment lookup helpers
+	// ------------------------------------------------------------
+
+	private ArrayList<Appointment> getAppointmentsForMonth(int month) {
+	    ArrayList<Appointment> result = new ArrayList<>();
+	    for (Appointment a : appointments) {
+	        if (a.getApptDate().getMonthValue() == month) {
+	            result.add(a);
+	        }
+	    }
+	    return result;
+	}
+
+	private ArrayList<Appointment> getAppointmentsForDay(int month, int day) {
+	    ArrayList<Appointment> result = new ArrayList<>();
+	    for (Appointment a : appointments) {
+	        if (a.getApptDate().getMonthValue() == month &&
+	            a.getApptDate().getDayOfMonth() == day) {
+	            result.add(a);
+	        }
+	    }
+	    return result;
+	}
+
+	// ------------------------------------------------------------
+	// User lookup helpers
+	// ------------------------------------------------------------
+
+	private Client getClientById(int id) {
+	    for (Client c : loadedClients) {
+	        if (c.getUserId() == id) {
+	            return c;
+	        }
+	    }
+	    return null;
+	}
+
+	private NailTech getTechById(int id) {
+	    for (NailTech t : loadedTechs) {
+	        if (t.getUserId() == id) {
+	            return t;
+	        }
+	    }
+	    return null;
+	}
+
 }

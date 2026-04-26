@@ -14,6 +14,7 @@ public class Appointment {
 	private int clientID;
 	private LocalDateTime apptDate;
 	private String apptName;
+
 	
 	public Appointment(int ntID, int cID, LocalDateTime apptDt, String apptName) {
 		nailTechID = ntID;
