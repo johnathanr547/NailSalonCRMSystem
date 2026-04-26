@@ -31,6 +31,9 @@ import businesslogic.Appointment;
  * - https://www.geeksforgeeks.org/java/filewriter-class-in-java/
  * - https://stackoverflow.com/questions/50586627/java-lang-nullpointexception-using-filewriter
  * - https://forums.oracle.com/ords/apexds/post/why-does-this-filewriter-create-a-null-pointer-help-5290
+ * - https://stackoverflow.com/questions/19509647/scanner-doesnt-see-after-space
+ * - https://stackoverflow.com/questions/35495663/java-bug-input-automatically-go-to-next-line-without-input-yet
+ * - https://stackoverflow.com/questions/13102045/scanner-is-skipping-nextline-after-using-next-or-nextfoo
  */
 public class CRMApp {
 	
@@ -41,14 +44,19 @@ public class CRMApp {
 	private Scanner in;
 	private int maxUserID;
 	private User currentUser;
-	private String apptFileName = "appointments.txt";
+	private String apptFileName;
 	private ArrayList<Appointment> appointments = new ArrayList<>();
 
-	
-	public CRMApp(String clientFileName, String techFileName)
+	/**
+	 * Construct the CRMApp "object"
+	 * @param clientFileName - the file to load/store clients in.
+	 * @param techFileName - the file to load/store techs in.
+	 */
+	public CRMApp(String clientFileName, String techFileName, String apptFileName)
 	{
 		this.clientFileName = clientFileName;
 		this.techFileName = techFileName;
+		this.apptFileName = apptFileName;
 		this.in = new Scanner(System.in);
 		this.maxUserID = 0;
 		loadedClients = new ArrayList<>();
@@ -126,6 +134,9 @@ public class CRMApp {
 		in.close();
 	}
 	
+	/**
+	 * "Flow" of a user logging in.
+	 */
 	public void loginFlow()
 	{
 		if (loadedClients.size() == 0 && loadedTechs.size() == 0)
@@ -196,7 +207,9 @@ public class CRMApp {
 		}
 	}
 	
-	
+	/**
+	 * The menu that client's will see. Allows them to book, manage and view appointments or update their info.
+	 */
 	public void clientsideMenu()
 	{
 		System.out.println("What would you like to do?\n");
@@ -221,26 +234,31 @@ public class CRMApp {
 
 		switch(selection) {
 		case(1):
+			// Book an appointment.
 			bookAppointmentsClient();
 			clientsideMenu();
 			break;
 		
 		case(2):
+			// Manage appointments.
 			manageAppointmentsClient();
 			clientsideMenu();
 			break;
 		
 		case(3):
+			// View appointments.
 			viewAppointmentsByMonth();
 			clientsideMenu();
 			break;
 		
 		case(4):
-			updateUserInfo();
+			// Update client info.
+			updateUserInfoClient();
 			clientsideMenu();
 			break;
 		
 		case(5):
+			// Quitting.
 			saveSystemState();
 			return;
 		
@@ -250,6 +268,9 @@ public class CRMApp {
 			
 	}
 	
+	/**
+	 * The menu that techs will see.
+	 */
 	public void techsideMenu()
 	{
 		System.out.println("What would you like to do?\n");
@@ -272,25 +293,32 @@ public class CRMApp {
 		}
 		switch(selection) {
 		case(1):
+			// Manage a tech's appointment.
 			manageAppointmentsTech();
 			techsideMenu();
 			break;
 		
 		case(2):
+			// View appointments by month.
 			viewAppointmentsByMonth();
 			techsideMenu();
 			break;
 		
 		case(3):
-			updateUserInfo();
+			// Update tech info.
+			updateUserInfoTech();
 			techsideMenu();
 			break;
 		
 		default:
+			// Quit.
 			saveSystemState();
 		}
 	}
 	
+	/**
+	 * Book an appointment as a client.
+	 */
 	public void bookAppointmentsClient() {
 	    System.out.println("\nBook Appointment");
 	    System.out.println("Enter q to quit.");
@@ -440,8 +468,87 @@ public class CRMApp {
 	    }
 	}
 
+	public void updateUserInfoClient()
+	{
+		System.out.println("\nWhat user information would you like to update?");
+		System.out.println("Options are:\n"
+				+ "1) Update First Name\n"
+				+ "2) Update Last Name\n"
+				+ "3) Update Email\n"
+				+ "4) Update Phone Number\n"
+				+ "5) Update Password\n"
+				+ "6) Update Address\n"
+				+ "7) Go Back\n");
+		Integer selection = null;
+		while (selection == null 
+				|| (!selection.equals(1) && !selection.equals(2) 
+						&& !selection.equals(3) && !selection.equals(4)
+						&& !selection.equals(5) && !selection.equals(6)
+						&& !selection.equals(7)))
+		{
+			System.out.println("Please enter a selection...");
+			try
+			{
+				selection = Integer.parseInt(this.in.next());
+			}
+			catch (NumberFormatException e)
+			{
+			}
+		}
+		switch(selection) {
+		case(1):
+			System.out.println("Please enter a new first name:");
+			String newFirst = this.in.next();
+			String oldFirst = this.currentUser.getFirstName();
+			this.currentUser.setFirstName(newFirst);
+			System.out.printf("First name changed from %s to %s.\n", oldFirst, newFirst);
+			break;
+			
+		case(2):
+			System.out.println("Please enter a new last name:");
+			String newLast = this.in.next();
+			String oldLast = this.currentUser.getLastName();
+			this.currentUser.setLastName(newLast);
+			System.out.printf("Last name changed from %s to %s.\n", oldLast, newLast);
+			break;
+			
+		case(3):
+			System.out.println("Please enter a new email:");
+			String newEmail = this.in.next();
+			String oldEmail = this.currentUser.getEmail();
+			this.currentUser.setEmail(newEmail);
+			System.out.printf("Email changed from %s to %s.\n", oldEmail, newEmail);
+			break;
+			
+		case(4):
+			System.out.println("Please enter a new phone number:");
+			String newPhone = this.in.next();
+			String oldPhone = this.currentUser.getPhoneNumber();
+			this.currentUser.setPhoneNumber(newPhone);
+			System.out.printf("Phone number changed from %s to %s.\n", oldPhone, newPhone);
+			break;
+			
+		case(5):
+			System.out.println("Please enter a new password:");
+			String newPassword = this.in.next();
+			String oldPassword = this.currentUser.getPassword();
+			this.currentUser.setPassword(newPassword);
+			System.out.printf("Password changed from %s to %s.\n", oldPassword, newPassword);
+			break;
+			
+		case(6):
+			System.out.print("Please enter a new address:\n");
+			this.in.nextLine();
+			String newAddress = this.in.nextLine();
+			((Client) this.currentUser).setAddress(newAddress);
+			System.out.printf("Address changed to %s\n", newAddress);
+			break;
+		default:
+			break;
+		}
+	}
 	
-	public void updateUserInfo()
+	public void updateUserInfoTech()
 	{
 		System.out.println("\nWhat user information would you like to update?");
 		System.out.println("Options are:\n"
@@ -584,6 +691,7 @@ public class CRMApp {
 			}
 		}
 		System.out.println("Please enter the user's first name:");
+		
 		String firstName = this.in.next();
 		System.out.println("\nPlease enter the user's last name:");
 		String lastName = this.in.next();
@@ -593,9 +701,12 @@ public class CRMApp {
 		String phoneNum = this.in.next();
 		System.out.println("\nPlease enter a password that the user will use to log in:");
 		String password = this.in.next();
+		System.out.println("\nOptionally, please enter an address for this user.\n"
+				+ "An address is only required for clients that a technician must travel to.\n");
+		String address = this.in.next();
 		if (userSelection == 1)
 		{
-			Client newClient = new Client(maxUserID++, password, firstName, lastName, email, phoneNum);
+			Client newClient = new Client(maxUserID++, password, firstName, lastName, email, phoneNum, address);
 			this.loadedClients.add(newClient);
 		}
 		else
