@@ -38,6 +38,7 @@ public class CRMApp {
 	private ArrayList<NailTech> loadedTechs;
 	private Scanner in;
 	private int maxUserID;
+	private User currentUser;
 	
 	public CRMApp(String clientFileName, String techFileName)
 	{
@@ -149,8 +150,151 @@ public class CRMApp {
 				System.out.printf("\nNo user with ID %d found! Please try again.", userID);
 			}
 		}
-		System.out.printf("\nWelcome, %s %s.\n", foundUser.getFirstName(), foundUser.getLastName());
-		saveSystemState();
+		System.out.printf("\nWelcome, %s %s.\n\n", foundUser.getFirstName(), foundUser.getLastName());
+		this.currentUser = foundUser;
+		if (this.currentUser.getClass().equals(Client.class))
+		{
+			clientsideMenu();
+		}
+		else
+		{
+			techsideMenu();
+		}
+	}
+	
+	
+	public void clientsideMenu()
+	{
+		System.out.println("What would you like to do?\n");
+		System.out.println("Options are:\n"
+				+ "1) Book/Manage Appointments\n"
+				+ "2) View Upcoming Appointments\n"
+				+ "3) Update User Info\n"
+				+ "4) Quit\n");
+		Integer selection = null;
+		while (selection == null || (!selection.equals(1) && !selection.equals(2) 
+				&& !selection.equals(3) && !selection.equals(4)))
+		{
+			System.out.println("Please enter your selection...");
+			try
+			{
+				selection = Integer.parseInt(this.in.next());
+			} catch (NumberFormatException e)
+			{
+				
+			}
+		}
+		switch(selection) {
+		case(1):
+			bookManageAppointmentsClient();
+			clientsideMenu();
+			break;
+		
+		case(2):
+			viewUpcomingAppointments();
+			clientsideMenu();
+			break;
+		
+		case(3):
+			updateUserInfo();
+			clientsideMenu();
+			break;
+		
+		default:
+			saveSystemState();
+		}
+			
+	}
+	
+	public void techsideMenu()
+	{
+		
+	}
+	
+	public void bookManageAppointmentsClient()
+	{
+		
+	}
+	
+	public void manageAppointmentsTech()
+	{
+		
+	}
+	
+	public void viewUpcomingAppointments()
+	{
+		
+	}
+	
+	public void updateUserInfo()
+	{
+		System.out.println("\nWhat user information would you like to update?");
+		System.out.println("Options are:\n"
+				+ "1) Update First Name\n"
+				+ "2) Update Last Name\n"
+				+ "3) Update Email\n"
+				+ "4) Update Phone Number\n"
+				+ "5) Update Password\n"
+				+ "6) Go Back\n");
+		Integer selection = null;
+		while (selection == null 
+				|| (!selection.equals(1) && !selection.equals(2) 
+						&& !selection.equals(3) && !selection.equals(4)
+						&& !selection.equals(5) && !selection.equals(6)))
+		{
+			System.out.println("Please enter a selection...");
+			try
+			{
+				selection = Integer.parseInt(this.in.next());
+			}
+			catch (NumberFormatException e)
+			{
+			}
+		}
+		switch(selection) {
+		case(1):
+			System.out.println("Please enter a new first name:");
+			String newFirst = this.in.next();
+			String oldFirst = this.currentUser.getFirstName();
+			this.currentUser.setFirstName(newFirst);
+			System.out.printf("First name changed from %s to %s.\n", oldFirst, newFirst);
+			break;
+			
+		case(2):
+			System.out.println("Please enter a new last name:");
+			String newLast = this.in.next();
+			String oldLast = this.currentUser.getLastName();
+			this.currentUser.setLastName(newLast);
+			System.out.printf("Last name changed from %s to %s.\n", oldLast, newLast);
+			break;
+			
+		case(3):
+			System.out.println("Please enter a new email:");
+			String newEmail = this.in.next();
+			String oldEmail = this.currentUser.getEmail();
+			this.currentUser.setEmail(newEmail);
+			System.out.printf("Email changed from %s to %s.\n", oldEmail, newEmail);
+			break;
+			
+		case(4):
+			System.out.println("Please enter a new phone number:");
+			String newPhone = this.in.next();
+			String oldPhone = this.currentUser.getPhoneNumber();
+			this.currentUser.setPhoneNumber(newPhone);
+			System.out.printf("Phone number changed from %s to %s.\n", oldPhone, newPhone);
+			break;
+			
+		case(5):
+			System.out.println("Please enter a new password:");
+			String newPassword = this.in.next();
+			String oldPassword = this.currentUser.getPassword();
+			this.currentUser.setPassword(newPassword);
+			System.out.printf("Password changed from %s to %s.\n", oldPassword, newPassword);
+			break;
+			
+		default:
+			break;
+		}
 	}
 	
 	public void saveSystemState()
@@ -163,9 +307,9 @@ public class CRMApp {
 				clientWriter.write(client.toString() + "\n");
 			}
 			clientWriter.close();
-			System.out.printf("Wrote %d clients out to %s.\n", this.loadedClients.size(), this.clientFileName);
+			System.out.printf("\nWrote %d clients out to %s.\n", this.loadedClients.size(), this.clientFileName);
 		} catch (IOException | NullPointerException e) {
-			System.out.println("Unable to save client information! Invalid save location!");
+			System.out.println("\nUnable to save client information! Invalid save location!");
 		}
 		try {
 			File techFile = new File(this.techFileName);
