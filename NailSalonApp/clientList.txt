@@ -1,4 +1,4 @@
-Client,1,456def,Johnathan,Ryder,jimmy@mail.com,777-888-9999,123 ABC St
+Client,1,456def,Jimmy,Ryder,jimmy@mail.com,777-888-9999,123 ABC St
 Client,2,234bcd,Ava,Canonica,ava@mail.com,234567891, 
 Client,3,345cde,Dorian,Crawford,dorian@mail.com,345678912, 
 Client,4,456def,Julianne,LaRosa,julianne@mail.com,456789123, 
