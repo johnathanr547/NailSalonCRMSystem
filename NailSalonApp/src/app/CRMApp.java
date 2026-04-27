@@ -403,6 +403,7 @@ public class CRMApp {
 	    	}
 	    	boolean goodApptStart = false;
 	    	boolean goodApptEnd = false;
+	    	boolean noConflicts = true;
 	    	if (techAvail != null)
 	    	{
 	    		LocalDateTime[] availForDay = techAvail.getAvailabilityPerDay(dayOfWeek);
@@ -425,17 +426,40 @@ public class CRMApp {
 	    			}
 	    			else if (availForDay[1].getHour() == dt.getHour() + 1)
 	    			{
-	    				if (availForDay[1].getMinute() <= dt.getMinute())
+	    				if (availForDay[1].getMinute() >= dt.getMinute())
 	    				{
 	    					goodApptEnd = true;
 	    				}
 	    			}
 	    		}
 	    	}
-	    	if (goodApptStart && goodApptEnd)
+	    	if (goodApptStart && goodApptEnd) // Availability matches, make sure there's no conflicting appointments.
 	    	{
-	    		assigned = tech;
-	    		break;
+	    		for (Appointment appt : this.appointments)
+	    		{
+	    			if (appt.getNailTechID() == tech.getUserId())
+	    			{
+	    				if (appt.getApptDate().getDayOfMonth() == dt.getDayOfMonth() && appt.getApptDate().getMonthValue() == dt.getMonthValue())
+	    				{
+		    				// Assuming that every appointment takes an hour, we need a "cone" of buffer that another appointment
+		    				// must be before or after. I.e. if a tech has an appointment at 10:00, then the latest that another
+		    				// appointment can be scheduled before that is 9:00, and the earliest that an appointment can be scheduled
+		    				// after that is 11:00.
+		    				int timeBefore = ((appt.getApptDate().getHour() - 1) * 100 + appt.getApptDate().getMinute());
+		    				int timeAfter = ((appt.getApptDate().getHour() + 1) * 100 + appt.getApptDate().getMinute());
+		    				int apptTime = dt.getHour() * 100 + dt.getMinute();
+		    				if (timeBefore <= apptTime && apptTime <= timeAfter) // Appointment falls within cone of unavailability.
+		    				{
+		    					noConflicts = false;
+		    					break;
+		    				}
+	    				}
+	    			}
+	    		}
+	    	}
+	    	if (goodApptStart && goodApptEnd && noConflicts)
+	    	{
+		    	assigned = tech;
 	    	}
 	    }
 	    if (assigned == null)
