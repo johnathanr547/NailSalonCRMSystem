@@ -367,6 +367,9 @@ public class CRMApp {
 
 	    System.out.println("Enter day of month:");
 	    int day = in.nextInt();
+	    
+	    System.out.println("Enter day of week (0-6, with 0 being Sunday and 6 being Saturday");
+	    int dayOfWeek = in.nextInt();
 
 	    System.out.println("Enter start time (HHMM, i.e. 1245):");
 	    int time = in.nextInt();
@@ -380,11 +383,59 @@ public class CRMApp {
 	        return;
 	    }
 
-	    // randomly assign a technician. Can (should) be changed later)
-	    NailTech assigned = loadedTechs.get((int)(Math.random() * loadedTechs.size()));
-	    if (assigned == null) {
-	        System.out.println("No nail technicians available.");
-	        return;
+	    NailTech assigned = null;
+	    for (NailTech tech : this.loadedTechs)
+	    {
+	    	Availability techAvail = null;
+	    	for (Availability avail : this.techAvailability)
+	    	{
+	    		if (avail.getUserID() == tech.getUserId())
+	    		{
+	    			techAvail = avail;
+	    			break;
+	    		}
+	    	}
+	    	boolean goodApptStart = false;
+	    	boolean goodApptEnd = false;
+	    	if (techAvail != null)
+	    	{
+	    		LocalDateTime[] availForDay = techAvail.getAvailabilityPerDay(dayOfWeek);
+	    		if (availForDay[0] != null && availForDay[1] != null)
+	    		{
+	    			if (availForDay[0].getHour() < dt.getHour())
+	    			{
+	    				goodApptStart = true;
+	    			}
+	    			else if (availForDay[0].getHour() == dt.getHour())
+	    			{
+	    				if (availForDay[0].getMinute() <= dt.getMinute())
+	    				{
+	    					goodApptStart = true;
+	    				}
+	    			}
+	    			if (availForDay[1].getHour() > dt.getHour() + 1)
+	    			{
+	    				goodApptEnd = true;
+	    			}
+	    			else if (availForDay[1].getHour() == dt.getHour() + 1)
+	    			{
+	    				if (availForDay[1].getMinute() <= dt.getMinute())
+	    				{
+	    					goodApptEnd = true;
+	    				}
+	    			}
+	    		}
+	    	}
+	    	if (goodApptStart && goodApptEnd)
+	    	{
+	    		assigned = tech;
+	    		break;
+	    	}
+	    }
+	    if (assigned == null)
+	    {
+	    	System.out.println("No techs available for requested time.");
+	    	return;
 	    }
 
 	    Appointment appt = new Appointment(

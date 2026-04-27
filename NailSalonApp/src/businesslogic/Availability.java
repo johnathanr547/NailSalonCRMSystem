@@ -104,15 +104,21 @@ public class Availability {
 			Integer userID = Integer.parseInt(splitLine[1]);
 			Availability newAvailability = new Availability(userID);
 			int dayCounter = 0;
-			for (int i = 2; i < 18; i = i + 2)
+			for (int i = 2; i < 30; i = i + 4)
 			{
 				String time1String = splitLine[i];
 				String time2String = splitLine[i + 1];
-				if (!time1String.equals("") && !time2String.equals(""))
+				String time3String = splitLine[i + 2];
+				String time4String = splitLine[i + 3];
+				if (!time1String.equals("") && !time2String.equals("") && !time3String.equals("") && !time4String.equals(""))
 				{
-				    Integer time1 = Integer.parseInt(splitLine[i]);
+				    Integer hrs1 = Integer.parseInt(time1String);
+				    Integer mins1 = Integer.parseInt(time2String);
+				    Integer hrs2 = Integer.parseInt(time3String);
+				    Integer mins2 = Integer.parseInt(time4String);
+				    Integer time1 = hrs1 * 100 + mins1;
 				    LocalDateTime dt1= LocalDateTime.of(2026, 1, 1, time1 / 100, time1 % 100);
-				    Integer time2 = Integer.parseInt(splitLine[i+1]);
+				    Integer time2 = hrs2 * 100 + mins2;
 				    LocalDateTime dt2 = LocalDateTime.of(2026, 1, 1, time2 / 100, time2 % 100);
 					newAvailability.setAvailabilityPerDay(dayCounter, dt1, dt2);
 				}
