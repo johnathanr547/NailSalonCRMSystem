@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
  * @version 1.0
  * Used:
  * - https://www.w3schools.com/java/java_date.asp
+ * - https://docs.oracle.com/javase/8/docs/api/java/sql/Time.html
  * - https://docs.oracle.com/javase/8/docs/api/java/time/LocalDateTime.html
  */
 public class Availability {
