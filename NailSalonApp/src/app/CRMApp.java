@@ -259,7 +259,7 @@ public class CRMApp {
 		
 		case(2):
 			// Manage appointments.
-			manageAppointmentsClient();
+			manageAppointments();
 			clientsideMenu();
 			break;
 		
@@ -297,9 +297,10 @@ public class CRMApp {
 				+ "2) View Upcoming Appointments\n"
 				+ "3) Update User Info\n"
 				+ "4) Manage Availability\n"
-				+ "5) Quit\n");
+				+ "5) Book Appointment\n"
+				+ "6) Quit\n");
 		Integer selection = null;
-		while (selection == null || selection < 1 || selection > 5)
+		while (selection == null || selection < 1 || selection > 6)
 		{
 			System.out.println("Please enter your selection...");
 			try
@@ -313,7 +314,7 @@ public class CRMApp {
 		switch(selection) {
 		case(1):
 			// Manage a tech's appointment.
-			manageAppointmentsTech();
+			manageAppointments();
 			techsideMenu();
 			break;
 		
@@ -331,6 +332,11 @@ public class CRMApp {
 		
 		case(4):
 			manageAvailability();
+			techsideMenu();
+			break;
+			
+		case(5):
+			bookAppointmentTech();
 			techsideMenu();
 			break;
 			
@@ -454,18 +460,122 @@ public class CRMApp {
 	        assigned.getLastName()
 	    );
 	}
+	
+	public void bookAppointmentTech()
+	{
+		System.out.println("\nBook Appointment");
+	    System.out.println("Enter q to quit.");
+	    System.out.println("Enter month number (1–12):");
+
+	    String sel = in.next();
+	    if (sel.equalsIgnoreCase("q")) return; // exits program if q is entered
+
+	    int month;
+	    
+	    // check user input
+	    try {
+	        month = Integer.parseInt(sel);
+	        if (month < 1 || month > 12) {
+	            System.out.println("Invalid month.");
+	            return;
+	        }
+	    } catch (NumberFormatException e) {
+	        System.out.println("Invalid input.");
+	        return;
+	    }
+
+	    System.out.println("Enter day of month:");
+	    int day = in.nextInt();
+	    
+	    System.out.println("Enter day of week (0-6, with 0 being Sunday and 6 being Saturday");
+	    int dayOfWeek = in.nextInt();
+
+	    System.out.println("Enter start time (HHMM, i.e. 1245):");
+	    int time = in.nextInt();
+
+	    LocalDateTime dt;
+	    // transform user input into a datetime object
+	    try {
+	        dt = LocalDateTime.of(2026, month, day, time / 100, time % 100);
+	    } catch (Exception e) {
+	        System.out.println("Invalid date/time.");
+	        return;
+	    }
+
+	    NailTech assigned = (NailTech) this.currentUser;
+	    
+	    Client clientForAppt = null;
+	    System.out.println("Enter ID of client to book appointment with:");
+	    int clientID = in.nextInt();
+	    for (Client client : this.loadedClients)
+	    {
+	    	if (client.getUserId() == clientID)
+	    	{
+	    		clientForAppt = client;
+	    		break;
+	    	}
+	    }
+
+	    if (clientForAppt != null)
+	    {
+		    Appointment appt = new Appointment(
+			        assigned.getUserId(),
+			        clientForAppt.getUserId(),
+			        dt,
+			        "Nail Service with " + currentUser.getFirstName() + " " + currentUser.getLastName()
+			    );
+
+			    appointments.add(appt);
+
+			    System.out.printf(
+			        "Appointment booked on %s with client %s %s.\n\n",
+			        dt.toString(),
+			        clientForAppt.getFirstName(),
+			        clientForAppt.getLastName()
+			    );
+	    }
+	    else
+	    {
+	    	System.out.println("Couldn't find a client with that ID!");
+	    }
+	}
 
 	
-	public void manageAppointmentsClient()
+	public void manageAppointments()
 	{
-		
-		
+		ArrayList<Appointment> userAppointments = new ArrayList<>();
+		for (Appointment appointment : this.appointments)
+		{
+			if (appointment.getClientID() == this.currentUser.getUserId() 
+					|| appointment.getNailTechID() == this.currentUser.getUserId())
+			{
+				userAppointments.add(appointment);
+			}
+		}
+		if (userAppointments.size() > 0)
+		{
+			System.out.println("Choose an appointment to cancel:");
+			for (int i = 0; i < userAppointments.size(); i++)
+			{
+				System.out.printf("%d) %s\n", i + 1, userAppointments.get(i).toString());
+			}
+			Integer userChoice = this.in.nextInt();
+			if (userChoice >= 0 && userChoice < userAppointments.size())
+			{
+				this.appointments.remove(userAppointments.get(userChoice));
+				System.out.println("Appointment cancelled successfully.");
+			}
+			else
+			{
+				System.out.println("Invalid appointment choice!");
+			}
+		}
+		else
+		{
+			System.out.println("You have no appointments to manage!");
+		}
 	}
 	
-	public void manageAppointmentsTech()
-	{
-		
-	}
 	
 	public void manageAvailability()
 	{
