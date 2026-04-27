@@ -271,7 +271,7 @@ public class CRMApp {
 		
 		case(4):
 			// Update client info.
-			updateUserInfoClient();
+			updateUserInfoClient(null);
 			clientsideMenu();
 			break;
 		
@@ -298,9 +298,10 @@ public class CRMApp {
 				+ "3) Update User Info\n"
 				+ "4) Manage Availability\n"
 				+ "5) Book Appointment\n"
-				+ "6) Quit\n");
+				+ "6) Update Client Info\n"
+				+ "7) Quit");
 		Integer selection = null;
-		while (selection == null || selection < 1 || selection > 6)
+		while (selection == null || selection < 1 || selection > 7)
 		{
 			System.out.println("Please enter your selection...");
 			try
@@ -340,9 +341,33 @@ public class CRMApp {
 			techsideMenu();
 			break;
 			
+		case(6):
+			Integer clientID = null;
+			boolean validID = false;
+			while (validID == false)
+			{
+				System.out.println("Enter a client ID to modify:");
+				clientID = this.in.nextInt();
+				for (Client client : this.loadedClients)
+				{
+					if (client.getUserId() == clientID)
+					{
+						validID = true;
+					}
+				}
+				if (!validID)
+				{
+					System.out.println("Invalid ID, please try again.");
+				}
+			}
+			updateUserInfoClient(clientID);
+			techsideMenu();
+			break;
+			
 		default:
 			// Quit.
 			saveSystemState();
+			break;
 		}
 	}
 	
@@ -690,7 +715,6 @@ public class CRMApp {
 	    {
 	    	System.out.println("Invalid times entered. Availability has not been updated.");
 	    }
-	    
 	}
 	
 	public void viewAppointmentsByMonth() {
@@ -769,8 +793,20 @@ public class CRMApp {
 	    }
 	}
 
-	public void updateUserInfoClient()
+	public void updateUserInfoClient(Integer clientID)
 	{
+		User currentUser = this.currentUser;
+		if (clientID != null)
+		{
+			for (Client client : this.loadedClients)
+			{
+				if (client.getUserId() == clientID)
+				{
+					currentUser = client;
+					break;
+				}
+			}
+		}
 		System.out.println("\nWhat user information would you like to update?");
 		System.out.println("Options are:\n"
 				+ "1) Update First Name\n"
@@ -800,40 +836,40 @@ public class CRMApp {
 		case(1):
 			System.out.println("Please enter a new first name:");
 			String newFirst = this.in.next();
-			String oldFirst = this.currentUser.getFirstName();
-			this.currentUser.setFirstName(newFirst);
+			String oldFirst = currentUser.getFirstName();
+			currentUser.setFirstName(newFirst);
 			System.out.printf("First name changed from %s to %s.\n", oldFirst, newFirst);
 			break;
 			
 		case(2):
 			System.out.println("Please enter a new last name:");
 			String newLast = this.in.next();
-			String oldLast = this.currentUser.getLastName();
-			this.currentUser.setLastName(newLast);
+			String oldLast = currentUser.getLastName();
+			currentUser.setLastName(newLast);
 			System.out.printf("Last name changed from %s to %s.\n", oldLast, newLast);
 			break;
 			
 		case(3):
 			System.out.println("Please enter a new email:");
 			String newEmail = this.in.next();
-			String oldEmail = this.currentUser.getEmail();
-			this.currentUser.setEmail(newEmail);
+			String oldEmail = currentUser.getEmail();
+			currentUser.setEmail(newEmail);
 			System.out.printf("Email changed from %s to %s.\n", oldEmail, newEmail);
 			break;
 			
 		case(4):
 			System.out.println("Please enter a new phone number:");
 			String newPhone = this.in.next();
-			String oldPhone = this.currentUser.getPhoneNumber();
-			this.currentUser.setPhoneNumber(newPhone);
+			String oldPhone = currentUser.getPhoneNumber();
+			currentUser.setPhoneNumber(newPhone);
 			System.out.printf("Phone number changed from %s to %s.\n", oldPhone, newPhone);
 			break;
 			
 		case(5):
 			System.out.println("Please enter a new password:");
 			String newPassword = this.in.next();
-			String oldPassword = this.currentUser.getPassword();
-			this.currentUser.setPassword(newPassword);
+			String oldPassword = currentUser.getPassword();
+			currentUser.setPassword(newPassword);
 			System.out.printf("Password changed from %s to %s.\n", oldPassword, newPassword);
 			break;
 			
@@ -841,7 +877,7 @@ public class CRMApp {
 			System.out.print("Please enter a new address:\n");
 			this.in.nextLine();
 			String newAddress = this.in.nextLine();
-			((Client) this.currentUser).setAddress(newAddress);
+			((Client) currentUser).setAddress(newAddress);
 			System.out.printf("Address changed to %s\n", newAddress);
 			break;
 		default:
