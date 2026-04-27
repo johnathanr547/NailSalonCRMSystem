@@ -9,11 +9,12 @@ import java.time.LocalDateTime;
  * @version 1.0
  * Used:
  * - https://www.w3schools.com/java/java_date.asp
+ * - https://docs.oracle.com/javase/8/docs/api/java/time/LocalDateTime.html
  */
 public class Availability {
 	
 	private int userID;
-	private LocalDateTime[] availabilityPerDay;
+	private LocalDateTime[][] availabilityPerDay;
 	
 	/**
 	 * Create the availability object.
@@ -22,7 +23,11 @@ public class Availability {
 	public Availability(int userID)
 	{
 		this.userID = userID;
-		this.availabilityPerDay = new LocalDateTime[7];
+		this.availabilityPerDay = new LocalDateTime[7][];
+		for (int i = 0; i < 7; i++)
+		{
+			this.availabilityPerDay[i] = new LocalDateTime[2];
+		}
 	}
 	
 	/**
@@ -47,9 +52,10 @@ public class Availability {
 	 * Get a user's availability on a given day.
 	 * Days of the week are 0-6, with Sunday as 0 and Saturday as 6.
 	 * @param day - the day to get a user's availability for.
+	 * Format is start of availability, end of availability.
 	 * @return the user's availability for that day, or null if not available.
 	 */
-	public LocalDateTime getAvailabilityPerDay(int day)
+	public LocalDateTime[] getAvailabilityPerDay(int day)
 	{
 		if (day < 0 || day > 6)
 		{
@@ -66,12 +72,104 @@ public class Availability {
 	 * @param day - the day to set the user's availability for.
 	 * @param newAvailability - the new availability for the user on that day.
 	 */
-	public void setAvailabilityPerDay(int day, LocalDateTime newAvailability)
+	public boolean setAvailabilityPerDay(int day, LocalDateTime newAvailabilityStart, LocalDateTime newAvailabilityEnd)
 	{
 		if (0 <= day && day <= 6)
 		{
-			this.availabilityPerDay[day] = newAvailability;
+			// Only start times before the end times.
+			if (newAvailabilityStart.isBefore(newAvailabilityEnd))
+			{
+				this.availabilityPerDay[day][0] = newAvailabilityStart;
+				this.availabilityPerDay[day][1] = newAvailabilityEnd;
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Parse availability information from a string.
+	 * @param availabilityString - the availability string to parse.
+	 * @return
+	 */
+	public static Availability parseAvailabilityString(String availabilityString)
+	{
+		if (!availabilityString.contains("Availability"))
+		{
+			return null;
+		}
+		String[] splitLine = availabilityString.split(",");
+		try
+		{
+			Integer userID = Integer.parseInt(splitLine[1]);
+			Availability newAvailability = new Availability(userID);
+			int dayCounter = 0;
+			for (int i = 2; i < 18; i = i + 2)
+			{
+				String time1String = splitLine[i];
+				String time2String = splitLine[i + 1];
+				if (!time1String.equals("") && !time2String.equals(""))
+				{
+				    Integer time1 = Integer.parseInt(splitLine[i]);
+				    LocalDateTime dt1= LocalDateTime.of(2026, 1, 1, time1 / 100, time1 % 100);
+				    Integer time2 = Integer.parseInt(splitLine[i+1]);
+				    LocalDateTime dt2 = LocalDateTime.of(2026, 1, 1, time2 / 100, time2 % 100);
+					newAvailability.setAvailabilityPerDay(dayCounter, dt1, dt2);
+				}
+				dayCounter++;
+			}
+			return newAvailability;
+		}
+		catch (Exception e)
+		{
+			return null;
 		}
 	}
-
+	
+	@Override
+	public String toString()
+	{
+		String returnString = "Availability,";
+		returnString += this.getUserID() + ",";
+		for (int i = 0; i < 6; i++)
+		{
+			LocalDateTime start = this.availabilityPerDay[i][0];
+			LocalDateTime end = this.availabilityPerDay[i][1];
+			if (start != null)
+			{
+				returnString = returnString + String.format("%d,%d,", start.getHour(), start.getMinute());
+			}
+			else
+			{
+				returnString += ",,";
+			}
+			if (end != null)
+			{
+				returnString = returnString + String.format("%d,%d,", end.getHour(), end.getMinute());
+			}
+			else
+			{
+				returnString += ",,";
+			}
+		}
+		LocalDateTime start = this.availabilityPerDay[6][0];
+		LocalDateTime end = this.availabilityPerDay[6][1];
+		if (start != null)
+		{
+			returnString = returnString + String.format("%d,%d,", start.getHour(), start.getMinute());
+		}
+		else
+		{
+			returnString += ",,";
+		}
+		if (end != null)
+		{
+			returnString = returnString + String.format("%d,%d", end.getHour(), end.getMinute());
+		}
+		else
+		{
+			returnString += ",,";
+		}
+		return returnString + ";";
+	}
 }

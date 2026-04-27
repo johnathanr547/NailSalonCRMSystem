@@ -10,7 +10,7 @@ public class CRMDriver {
 	
 	public static void main(String[] args)
 	{
-		CRMApp app = new CRMApp("clientList.txt", "techList.txt", "appointments.txt");
+		CRMApp app = new CRMApp("clientList.txt", "techList.txt", "appointments.txt", "availability.txt");
 	}
 	
 }

@@ -45,18 +45,21 @@ public class CRMApp {
 	private int maxUserID;
 	private User currentUser;
 	private String apptFileName;
+	private String availabilityFileName;
 	private ArrayList<Appointment> appointments = new ArrayList<>();
+	private ArrayList<Availability> techAvailability = new ArrayList<>();
 
 	/**
 	 * Construct the CRMApp "object"
 	 * @param clientFileName - the file to load/store clients in.
 	 * @param techFileName - the file to load/store techs in.
 	 */
-	public CRMApp(String clientFileName, String techFileName, String apptFileName)
+	public CRMApp(String clientFileName, String techFileName, String apptFileName, String availabilityFileName)
 	{
 		this.clientFileName = clientFileName;
 		this.techFileName = techFileName;
 		this.apptFileName = apptFileName;
+		this.availabilityFileName = availabilityFileName;
 		this.in = new Scanner(System.in);
 		this.maxUserID = 0;
 		loadedClients = new ArrayList<>();
@@ -90,24 +93,19 @@ public class CRMApp {
 		} catch (IOException e) {
 			System.out.println("Couldn't read nail tech data file!\n");
 		}
-		System.out.printf("Loaded %d clients and %d nail techs!\n\n", loadedClients.size(), loadedTechs.size());
 		
-		// Update maxUserID by counting client ids
-		for (Client client : this.loadedClients)
-		{
-			if (client.getUserId() >= maxUserID)
+		// Read in tech availability data.
+		try {
+			BufferedReader availReader = new BufferedReader(new FileReader(availabilityFileName));
+			String currentReaderLine = availReader.readLine();
+			while (currentReaderLine != null)
 			{
-				maxUserID = client.getUserId() + 1;
+				techAvailability.add(Availability.parseAvailabilityString(currentReaderLine));
+				currentReaderLine = availReader.readLine();
 			}
-		}
-		
-		// Update maxUserID by counting user ids
-		for (NailTech tech : this.loadedTechs)
-		{
-			if (tech.getUserId() >= maxUserID)
-			{
-				maxUserID = tech.getUserId() + 1;
-			}
+			availReader.close();
+		} catch (IOException e) {
+			System.out.println("Couldn't read availability data file!\n");
 		}
 		
 		// Load appointments
@@ -129,7 +127,27 @@ public class CRMApp {
 		} catch (IOException e) {
 		    System.out.println("No existing appointments file found. Starting fresh.");
 		}
-
+		
+		System.out.printf("Loaded %d clients and %d nail techs!\n", loadedClients.size(), loadedTechs.size());
+		System.out.printf("Loaded %d appointments and %d availability records!\n\n", appointments.size(), techAvailability.size());
+		
+		// Update maxUserID by counting client ids
+		for (Client client : this.loadedClients)
+		{
+			if (client.getUserId() >= maxUserID)
+			{
+				maxUserID = client.getUserId() + 1;
+			}
+		}
+		
+		// Update maxUserID by counting user ids
+		for (NailTech tech : this.loadedTechs)
+		{
+			if (tech.getUserId() >= maxUserID)
+			{
+				maxUserID = tech.getUserId() + 1;
+			}
+		}
 		loginFlow();
 		in.close();
 	}
@@ -278,9 +296,10 @@ public class CRMApp {
 				+ "1) Manage Appointments\n"
 				+ "2) View Upcoming Appointments\n"
 				+ "3) Update User Info\n"
-				+ "4) Quit\n");
+				+ "4) Manage Availability\n"
+				+ "5) Quit\n");
 		Integer selection = null;
-		while (selection == null || selection < 1 || selection > 4)
+		while (selection == null || selection < 1 || selection > 5)
 		{
 			System.out.println("Please enter your selection...");
 			try
@@ -310,6 +329,11 @@ public class CRMApp {
 			techsideMenu();
 			break;
 		
+		case(4):
+			manageAvailability();
+			techsideMenu();
+			break;
+			
 		default:
 			// Quit.
 			saveSystemState();
@@ -390,6 +414,98 @@ public class CRMApp {
 	public void manageAppointmentsTech()
 	{
 		
+	}
+	
+	public void manageAvailability()
+	{
+		Integer dayOfWeek = null;
+		while (dayOfWeek == null || dayOfWeek < 0 || dayOfWeek > 6)
+		{
+			System.out.println("Please enter a day of the week:\n"
+					+ "Note that 0 = Sunday and 6 = Saturday.\n");
+			try
+			{
+				dayOfWeek = Integer.parseInt(this.in.next());
+			}
+			catch (NumberFormatException e)
+			{
+			}
+		}
+		Availability userAvailability = null;
+		for(Availability currentAvail : this.techAvailability)
+		{
+			if (currentAvail.getUserID() == this.currentUser.getUserId())
+			{
+				userAvailability = currentAvail;
+				break;
+			}
+		}
+		if (userAvailability == null)
+		{
+			userAvailability = new Availability(this.currentUser.getUserId());
+			this.techAvailability.add(userAvailability);
+		}
+		String dayOfWeekString = "";
+		switch(dayOfWeek)
+		{
+		case(0):
+			dayOfWeekString = "Sunday";
+			break;
+		case(1):
+			dayOfWeekString = "Monday";
+			break;
+		case(2):
+			dayOfWeekString = "Tuesday";
+			break;
+		case(3):
+			dayOfWeekString = "Wednesday";
+			break;
+		case(4):
+			dayOfWeekString = "Thursday";
+			break;
+		case(5):
+			dayOfWeekString = "Friday";
+			break;
+		default:
+			dayOfWeekString = "Saturday";
+			break;
+		}
+		System.out.printf("Updating availability for %s.\n", dayOfWeekString);
+		LocalDateTime[] availabilityForDay = userAvailability.getAvailabilityPerDay(dayOfWeek);
+	    LocalDateTime dtStart = null;
+	    while (dtStart == null)
+	    {
+			System.out.println("Enter start of new availability window:");
+		    int time = in.nextInt();
+		    // transform user input into a datetime object
+		    try {
+		        dtStart = LocalDateTime.of(2026, 1, 1, time / 100, time % 100);
+		    } catch (Exception e) {
+		        System.out.println("Invalid time.");
+		    }
+	    }
+	    LocalDateTime dtEnd = null;
+	    while (dtEnd == null)
+	    {
+	    	System.out.println("Enter end of new availability window:");
+		    int time = in.nextInt();
+		    // transform user input into a datetime object
+		    try {
+		        dtEnd = LocalDateTime.of(2026, 1, 1, time / 100, time % 100);
+		    } catch (Exception e) {
+		        System.out.println("Invalid time.");
+		    }
+	    }
+	    boolean setResult = userAvailability.setAvailabilityPerDay(dayOfWeek, dtStart, dtEnd);
+	    if (setResult)
+	    {
+	    	System.out.println("Successfully updated availability.");
+	    }
+	    else
+	    {
+	    	System.out.println("Invalid times entered. Availability has not been updated.");
+	    }
+	    
 	}
 	
 	public void viewAppointmentsByMonth() {
@@ -665,6 +781,20 @@ public class CRMApp {
 		    System.out.printf("Wrote %d appointments to %s.\n", this.appointments.size(), this.apptFileName);
 		} catch (IOException | NullPointerException e) {
 		    System.out.println("Unable to save appointment information! Invalid save location!");
+		}
+		
+		// Write availability info
+		try {
+			File availFile = new File(this.availabilityFileName);
+			BufferedWriter availWriter = new BufferedWriter(new FileWriter(availFile));
+			for (Availability avail : this.techAvailability)
+			{
+				availWriter.write(avail.toString() + "\n");
+			}
+			availWriter.close();
+			System.out.printf("Wrote %d availability records out to %s.\n", this.techAvailability.size(), this.availabilityFileName);
+		} catch (IOException | NullPointerException e) {
+			System.out.println("Unable to save availability information! Invalid save location!");
 		}
 
 		System.out.println("Goodbye!");
