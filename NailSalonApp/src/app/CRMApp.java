@@ -609,9 +609,9 @@ public class CRMApp {
 				System.out.printf("%d) %s\n", i + 1, userAppointments.get(i).toString());
 			}
 			Integer userChoice = this.in.nextInt();
-			if (userChoice >= 0 && userChoice < userAppointments.size())
+			if (userChoice >= 1 && userChoice < userAppointments.size() + 1)
 			{
-				this.appointments.remove(userAppointments.get(userChoice));
+				this.appointments.remove(userAppointments.get(userChoice - 1));
 				System.out.println("Appointment cancelled successfully.");
 			}
 			else
