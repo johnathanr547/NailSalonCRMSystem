@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
  * - https://www.w3schools.com/java/java_date.asp
  * - https://docs.oracle.com/javase/8/docs/api/java/sql/Time.html
  * - https://docs.oracle.com/javase/8/docs/api/java/time/LocalDateTime.html
+ * GenAI statement: Generative AI was used in the creation of this app.
  */
 public class Availability {
 	
