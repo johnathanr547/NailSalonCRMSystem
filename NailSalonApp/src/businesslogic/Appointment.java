@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
  * 
  * @author Dorian Crawford
  * @version 1.0
+ * GenAI statement: Generative AI was used in the creation of this app.
  */
 
 public class Appointment {
