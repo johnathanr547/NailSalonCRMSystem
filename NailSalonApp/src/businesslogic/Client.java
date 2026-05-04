@@ -5,6 +5,7 @@ package businesslogic;
  * 
  * @author Blue Ridge Consulting
  * @version 1.0
+ * GenAI statement: Generative AI was used in the creation of this app.
  */
 public class Client extends User {
 	
