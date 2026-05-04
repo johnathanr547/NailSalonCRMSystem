@@ -34,6 +34,7 @@ import businesslogic.Appointment;
  * - https://stackoverflow.com/questions/19509647/scanner-doesnt-see-after-space
  * - https://stackoverflow.com/questions/35495663/java-bug-input-automatically-go-to-next-line-without-input-yet
  * - https://stackoverflow.com/questions/13102045/scanner-is-skipping-nextline-after-using-next-or-nextfoo
+ * - https://stackoverflow.com/questions/218384/what-is-a-nullpointerexception-and-how-do-i-fix-it
  * - GenAI Statement: Generative AI was used in the creation of this application.
  */
 public class CRMApp {
